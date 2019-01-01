@@ -30,7 +30,7 @@ app.get('/api/users', (req, res) => {
 app.get('/api/users/:id', (req, res) => {
     const user = users.find(c => c.id === parseInt(req.params.id));
     if(!user){
-        res.send("Error, user does not exist");
+        res.status(404).send("Error, user does not exist");
     }else{
         res.send(user);
     }
