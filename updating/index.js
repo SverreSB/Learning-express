@@ -55,11 +55,6 @@ app.post('/api/users', (req, res) => {
     res.send(user);
 });
 
-
-app.put('/api/users/:id', (req, res) => {
-    //Under construction
-});
-
 //Added logic to find user based on id in route. 
 app.get('/api/users/:id', (req, res) => {
     const user = users.find(c => c.id === parseInt(req.params.id));
