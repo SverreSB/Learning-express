@@ -1,3 +1,4 @@
+const Joi = require('joi');
 const express = require('express');
 const app = express();
 
@@ -30,9 +31,20 @@ app.get('/api/users', (req, res) => {
 
 //When name is requested it creates a user with id array size + 1
 app.post('/api/users', (req, res) => {
+    const schema = {
+        //Require 2 chars to post user request. 
+        name: Joi.string().min(2).required()
+    };
+
+    const result = Joi.validate(req.body, schema);
+    console.log(result);
+
     //Validating that input is filled in
-    if(!req.body.name){
-        res.status(400).send('Name is requiered');
+    //Prev code was !req.body.name with hardcoded error message
+    if(result.error){
+        //res.status(400).send(result.error);
+        //Nice print below
+        res.status(400).send(result.error.details[0].message);
         return;
     }
     const user = {
