@@ -55,6 +55,30 @@ app.post('/api/users', (req, res) => {
     res.send(user);
 });
 
+//Update name of user based on id given in route. 
+app.put('/api/users/:id', (req, res) => {
+
+    const user = users.find(c => c.id === parseInt(req.params.id));
+    if(!user){
+        res.status(404).send('The user with given ID was not found');
+    }
+    const schema = {
+        //Require 2 chars to post user request. 
+        name: Joi.string().min(2).required()
+    };
+
+    const result = Joi.validate(req.body, schema);
+
+    if(result.error){
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
+
+    user.name = req.body.name;
+    res.send(user);
+
+});
+
 //Added logic to find user based on id in route. 
 app.get('/api/users/:id', (req, res) => {
     const user = users.find(c => c.id === parseInt(req.params.id));
