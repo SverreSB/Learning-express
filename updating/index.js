@@ -31,13 +31,7 @@ app.get('/api/users', (req, res) => {
 
 //When name is requested it creates a user with id array size + 1
 app.post('/api/users', (req, res) => {
-    const schema = {
-        //Require 2 chars to post user request. 
-        name: Joi.string().min(2).required()
-    };
-
-    const result = Joi.validate(req.body, schema);
-    console.log(result);
+    result = validateUser(req.body);
 
     //Validating that input is filled in
     //Prev code was !req.body.name with hardcoded error message
@@ -62,13 +56,8 @@ app.put('/api/users/:id', (req, res) => {
     if(!user){
         res.status(404).send('The user with given ID was not found');
     }
-    const schema = {
-        //Require 2 chars to post user request. 
-        name: Joi.string().min(2).required()
-    };
 
-    const result = Joi.validate(req.body, schema);
-
+    result = validateUser(req.body);
     if(result.error){
         res.status(400).send(result.error.details[0].message);
         return;
@@ -88,6 +77,15 @@ app.get('/api/users/:id', (req, res) => {
         res.send(user);
     }
 });
+
+function validateUser(user){
+    const schema = {
+        //Require 2 chars to post user request. 
+        name: Joi.string().min(2).required()
+    };
+
+    return Joi.validate(user, schema);
+}
 
 //Hard coded values are not good....
 //app.listen(3000, () => console.log('Listening on port 3000...'));
