@@ -2,7 +2,17 @@ const Joi = require('joi');
 const express = require('express');
 const app = express();
 
+const logger = require('./logger');
+
 app.use(express.json());
+
+app.use((req, res, next) => {
+    logger.log(req, res, next);
+});
+
+app.use((req, res, next) => {
+    logger.authenticate(req, res, next);
+});
 
 const users = [
     {id: 1, name: "David"}, 
