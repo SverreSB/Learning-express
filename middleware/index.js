@@ -19,32 +19,19 @@ app.get('/', (req, res) =>{
 //when users branch is requested, the response is created and sent
 //This response is users in static array. 
 app.get('/api/users', (req, res) => {
-    var userString = "[";
-    users.forEach(user => {
-        userString += `{id: ${user.id} name: ${user.name}}, `;
-        /*userString += user.name;
-        userString += "; ";*/
-    });
-    userString += "]";
-    res.send(`${userString}`); 
+    res.send(users); 
 });
 
 //When name is requested it creates a user with id array size + 1
 app.post('/api/users', (req, res) => {
-    result = validateUser(req.body);
+    result = validateUser(req.body.name);
+    if(result.error) return res.status(400).send(result.error.details[0].message);
 
-    //Validating that input is filled in
-    //Prev code was !req.body.name with hardcoded error message
-    if(result.error){
-        //res.status(400).send(result.error);
-        //Nice print below
-        res.status(400).send(result.error.details[0].message);
-        return;
-    }
     const user = {
         id: users.length + 1, 
         name: req.body.name,
     };
+
     users.push(user);
     res.send(user);
 });
@@ -52,18 +39,12 @@ app.post('/api/users', (req, res) => {
 //Update name of user based on id given in route. 
 app.put('/api/users/:id', (req, res) => {
 
-    const user = users.find(c => c.id === parseInt(req.params.id));
-    if(!user){
-        res.status(404).send('The user with given ID was not found');
-        return;
-    }
-
-    result = validateUser(req.body);
-    if(result.error){
-        res.status(400).send(result.error.details[0].message);
-        return;
-    }
-
+    const user = lookUpUser(req.params.id);
+    if(!user) return res.status(404).send('The user with given ID was not found');
+    
+    result = validateUser(req.body.name);
+    if(result.error) return res.status(400).send(result.error.details[0].message);
+    
     user.name = req.body.name;
     res.send(user);
 
@@ -72,21 +53,16 @@ app.put('/api/users/:id', (req, res) => {
 //Added logic to find user based on id in route. 
 app.get('/api/users/:id', (req, res) => {
     //const user = users.find(c => c.id === parseInt(req.params.id));
-    const user = lookupUser(req.params.id);
-    if(!user){
-        res.status(404).send("Error, user does not exist");
-    }else{
-        res.send(user);
-    }
+    const user = lookUpUser(req.params.id);
+    if(!user) return res.status(404).send("Error, user does not exist");
+    
+    res.send(user);
+    
 });
 
 app.delete('/api/users/:id', (req, res) => {
-    const user = lookupUser(req.params.id);
-    /*if(!user){
-        res.status(404).send("Error, user does not exist");
-        return;
-    }*/
-    //Cleanser than above if statement. Could have done the same in put
+    const user = lookUpUser(req.params.id);
+
     if(!user) return res.status(404).send("Error, user does not exist");
 
     const index = users.indexOf(user);
@@ -94,6 +70,12 @@ app.delete('/api/users/:id', (req, res) => {
 
     res.send(user);
 });
+
+
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => console.log(`Listening to port ${port}`));
+
 
 //Function for validating name length using joi
 function validateUser(user){
@@ -106,13 +88,6 @@ function validateUser(user){
 }
 
 //Function for finding user based on id
-function lookupUser(id){
+function lookUpUser(id){
     return users.find(c => c.id === parseInt(id));
 }
-
-//Hard coded values are not good....
-//app.listen(3000, () => console.log('Listening on port 3000...'));
-
-const port = process.env.PORT || 3000;
-
-app.listen(port, () => console.log(`Listening to port ${port}`));
