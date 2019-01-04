@@ -24,7 +24,7 @@ app.get('/api/users', (req, res) => {
 
 //When name is requested it creates a user with id array size + 1
 app.post('/api/users', (req, res) => {
-    result = validateUser(req.body.name);
+    result = validateUser(req.body);
     if(result.error) return res.status(400).send(result.error.details[0].message);
 
     const user = {
@@ -42,7 +42,7 @@ app.put('/api/users/:id', (req, res) => {
     const user = lookUpUser(req.params.id);
     if(!user) return res.status(404).send('The user with given ID was not found');
     
-    result = validateUser(req.body.name);
+    result = validateUser(req.body);
     if(result.error) return res.status(400).send(result.error.details[0].message);
     
     user.name = req.body.name;
